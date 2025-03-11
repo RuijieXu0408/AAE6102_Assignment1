@@ -54,8 +54,8 @@ settings.skipNumberOfBytes     = 0; %1000;%7000*26000*2;
 %% Raw signal file name and other parameter ===============================
 % This is a "default" name of the data file (signal record) to be used in
 % the post-processing mode
-settings.fileName           = 'C:\01_Study\AAE6102\data\Opensky.bin';
-% 'C:\01_Study\AAE6102\data\Opensky.bin';
+settings.fileName           = 'C:\01_Study\AAE6102_data\Opensky.bin';
+% 'C:\01_Study\AAE6102_data\Opensky.bin';
 %'C:\Users\gnss\Desktop\Discussion\Amungo Navigation for NUT4NT+\dump_ch1.bin';  
 % settings.fileName           = 'C:\Users\guoha\Desktop\GNSS_SDR\GPSSDR_vt\sample data\hackrf_try_1.dat';
 % Data type used to store one sample

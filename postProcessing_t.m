@@ -135,9 +135,9 @@ if ~exist(['trackingResults','.mat'])
     
     % Auto save the acquisition & tracking results to a file to allow
     % running the positioning solution afterwards.
-    disp('   Saving Acq & Tracking results to file "trackingResults.mat"')
-    save('trackingResults', ...
-        'trackResults', 'settings', 'acqResults', 'channel');
+%     disp('   Saving Acq & Tracking results to file "trackingResults.mat"')
+%     save('trackingResults', ...
+%         'trackResults', 'settings', 'acqResults', 'channel');
     
 else
     load('trackingResults.mat');
@@ -149,23 +149,118 @@ end
 
     disp('   Processing is complete for this data block');
 
+%% Plot all results =======================================================
+    disp ('   Ploting results...');
+    if settings.plotTracking
+        plotTracking(1:settings.numberOfChannels, trackResults, settings);
+    end
 
+    plotNavigation(navSolutions, settings);
+    
+    % Plot ACF (Auto-Correlation Function) for satellites
+    if settings.multicorr==1
+        disp ('   Plotting auto-correlation functions...');
+        % Get PRNs of tracked satellites with valid data
+        validChannels = find([trackResults.status] ~= '-');
+        allPRNs = [trackResults(validChannels).PRN];
+        
+        % Select top 4 satellites with strongest signal (using I_P as indicator)
+        signalStrength = zeros(1, length(validChannels));
+        for i = 1:length(validChannels)
+            signalStrength(i) = mean(abs(trackResults(validChannels(i)).I_P));
+        end
+        [~, sortIdx] = sort(signalStrength, 'descend');
+        topPRNs = allPRNs(sortIdx(1:min(4, length(sortIdx))));
+        
+        % Plot ACF for top satellites
+        plotMultipleSatelliteACF(trackResults, topPRNs, 9);
+        
+        % Save the figure
+        saveas(gcf, 'ACF_plot.png');
+        disp('   ACF plot saved as "ACF_plot.png"');
+    end
 
-    %% Plot tracking
-    disp ('   Ploting trackResults...');
-    AssignmentPlot(trackResults, navSolutions);
-
-% %% Plot all results =======================================================
-%     disp ('   Ploting results...');
-%     if settings.plotTracking
-%         plotTracking(1:settings.numberOfChannels, trackResults, settings);
-%     end
-% 
-%     plotNavigation(navSolutions, settings);
-% 
-%     disp('Post processing of the signal is over.');
+    disp('Post processing of the signal is over.');
 
 else
     % Error while opening the data file.
     error('Unable to read file %s: %s.', settings.fileName, message);
 end % if (fid > 0)
+
+% Function to plot ACF for multiple satellites
+function plotMultipleSatelliteACF(trackResults, PRNs, epochs)
+    numPRNs = length(PRNs);
+    figure('Position', [100, 100, 1200, 800]);
+    
+    for i = 1:numPRNs
+        subplot(2, 2, i);
+        plotSingleSatelliteACF(trackResults, PRNs(i), epochs);
+        title(['PRN ' num2str(PRNs(i))]);
+    end
+    
+    sgtitle('Auto-correlation Functions at Different Epochs');
+end
+
+% Function to plot ACF for a single satellite
+function plotSingleSatelliteACF(trackResults, PRN, epochs)
+    % Get channel index for the PRN
+    channelIndex = find([trackResults.PRN] == PRN);
+    
+    if isempty(channelIndex)
+        text(0.5, 0.5, ['PRN ' num2str(PRN) ' not found'], 'HorizontalAlignment', 'center');
+        return;
+    end
+    
+    % Check if multi-correlator data exists
+    if ~isfield(trackResults, 'I_multi') || isempty(trackResults(channelIndex).I_multi)
+        text(0.5, 0.5, 'No multi-correlator data available', 'HorizontalAlignment', 'center');
+        return;
+    end
+    
+    % Select epochs to plot (evenly spaced)
+    totalEpochs = length(trackResults(channelIndex).I_multi);
+    if totalEpochs < epochs
+        selectedEpochs = 1:totalEpochs;
+    else
+        selectedEpochs = round(linspace(1, totalEpochs, epochs));
+    end
+    
+    % Define correlator offsets (chips)
+    % Assuming the order in I_multi is [E, E04, E03, E02, E01, P, L01, L02, L03, L04, L]
+    correlatorOffsets = [-0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5];
+    
+    % Create colors for different epochs
+    colors = jet(length(selectedEpochs));
+    
+    hold on;
+    
+    % Plot ACF for each selected epoch
+    for i = 1:length(selectedEpochs)
+        epoch = selectedEpochs(i);
+        
+        % Get I and Q values for this epoch
+        if epoch <= length(trackResults(channelIndex).I_multi)
+            I_values = trackResults(channelIndex).I_multi{epoch};
+            Q_values = trackResults(channelIndex).Q_multi{epoch};
+            
+            % Calculate correlation magnitude
+            magnitudes = sqrt(I_values.^2 + Q_values.^2);
+            
+            % Normalize to prompt correlator
+            promptIndex = 6; % Index of prompt correlator in the array
+            normalizedMagnitudes = magnitudes / magnitudes(promptIndex);
+            
+            % Plot the ACF for this epoch
+            plot(correlatorOffsets, normalizedMagnitudes, '--o', 'Color', colors(i,:), ...
+                 'LineWidth', 1.5, 'DisplayName', ['Epoch ' num2str(epoch)]);
+        end
+    end
+    
+    xlabel('Code Offset (chips)');
+    ylabel('Normalized Correlation');
+    grid on;
+    legend('Location', 'best');
+    xlim([-0.6, 0.6]);
+    ylim([0, 1.2]);
+    hold off;
+end

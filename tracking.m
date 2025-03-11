@@ -76,7 +76,7 @@ trackResults.pllDiscrFilt   = inf(1, settings.msToProcess);
 trackResults.remCodePhase       = inf(1, settings.msToProcess);
 trackResults.remCarrPhase       = inf(1, settings.msToProcess);
 
-%% MULTICORRELATOR BY Ray
+%% MULTICORRELATOR BY RayJ
 if settings.multicorr==1
 trackResults.Q_multi           = cell(1, settings.msToProcess);
 trackResults.I_multi            = cell(1, settings.msToProcess);

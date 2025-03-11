@@ -1,3 +1,4 @@
+function AssignmentPlot(trackResults, navSolutions)
 %% for multi-correaltor output
 data=trackResults(1).I_multi{200};
 if data(6)<0

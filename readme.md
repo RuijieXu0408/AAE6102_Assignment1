@@ -3,49 +3,30 @@
 <details open="open">
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
   <ol>
-     <li>
-       <a href="#introduction">Introduction</a>
-     </li>
-     <li>
-       <a href="#methodology">Methodology</a>
-       <ul>
-         <li><a href="#task-1-acquisition">Task 1: Acquisition</a></li>
-         <li><a href="#task-2-tracking">Task 2: Tracking</a></li>
-         <li><a href="#task-3-navigation-data-decoding">Task 3: Navigation Data Decoding</a></li>
-         <li><a href="#task-4-position-and-velocity-estimation">Task 4: Position and Velocity Estimation</a></li>
-         <li><a href="#task-5-kalman-filter-based-positioning">Task 5: Kalman Filter-based Positioning</a></li>
-       </ul>
-     </li>
-     <li>
-       <a href="#results-and-discussion">Results and Discussion</a>
-       <ul>
-         <li>
-           <a href="#Scenario 1: Opensky">Scenario 1: OpenSky</a>
-           <ul>
-             <li><a href="#opensky-acquisition-results">Acquisition Results</a></li>
-             <li><a href="#opensky-tracking-performance">Tracking Performance</a></li>
-             <li><a href="#opensky-navigation-data-decoding-results">Navigation Data Decoding Results</a></li>
-             <li><a href="#opensky-position-estimation-results">Position Estimation Results</a></li>
-           </ul>
-         </li>
-         <li>
-           <a href="#Scenario 2: urban">Scenario 2: Urban</a>
-           <ul>
-             <li><a href="#urban-acquisition-results">Acquisition Results</a></li>
-             <li><a href="#urban-tracking-performance">Tracking Performance</a></li>
-             <li><a href="#urban-navigation-data-decoding-results">Navigation Data Decoding Results</a></li>
-             <li><a href="#urban-position-estimation-results">Position Estimation Results</a></li>
-           </ul>
-         </li>
-         <li><a href="#comparison-of-open-sky-and-urban-environments">Comparison of Open-sky and Urban Environments</a></li>
-       </ul>
-     </li>
-     <li>
-       <a href="#conclusion">Conclusion</a>
-     </li>
-     <li>
-       <a href="#references">References</a>
-     </li>
+    <li>
+      <a href="#introduction">Introduction</a>
+    </li>
+    <li>
+      <a href="#task-1-acquisition">Task 1: Acquisition</a>
+    </li>
+    <li>
+      <a href="#task-2-tracking">Task 2: Tracking</a>
+    </li>
+    <li>
+      <a href="#task-3-navigation-data-decoding">Task 3: Navigation Data Decoding</a>
+    </li>
+    <li>
+      <a href="#task-4-position-and-velocity-estimation">Task 4: Position and Velocity Estimation</a>
+    </li>
+    <li>
+      <a href="#task-5-kalman-filter-based-positioning">Task 5: Kalman filter-based positioning</a>
+    </li>
+    <li>
+      <a href="#conclusion">Conclusion</a>
+    </li>
+    <li>
+      <a href="#references">References</a>
+    </li>
   </ol>
 </details>
 
@@ -68,265 +49,120 @@ The datasets used in this analysis have the following characteristics:
 | Ground truth           | (22.328444770087565, 114.1713630049711) | (22.3198722, 114.209101777778) |
 | Data length            | 90 seconds                              | 90 seconds                     |
 
-![Fig1](C:\01_Study\AAE6102\img\Fig1.png)
+![Fig1](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Fig1.png)
 
 Figure 1. Data collection locations (Source: Assignment 1)
 
 The code is modified and implemented on SoftGNSS, a MATLAB-based GNSS software receiver, with modifications to address the specific requirements of each task.
 
-## Methodology
+## Task 1: Acquisition
 
-#### 1.1 Acquisition Algorithm
+### 1 Objective
 
-The implemented acquisition algorithm consists of the following steps:
+The acquisition process aims to identify visible satellites and determine coarse values of carrier Doppler frequency and code phase for each satellite signal. For this task, we implemented the parallel code phase search method using Fast Fourier Transform (FFT) to efficiently compute the correlation between the received signal and locally generated replicas.
 
-1. **Signal Conditioning**: The input IF signal was first processed to remove DC bias and buffered into segments of 1-2 milliseconds, corresponding to one complete C/A code period.
-2. **Search Space Definition**: Based on the lecture material (Slide 51), we defined the search ranges as: Doppler frequency range: ±5 kHz (appropriate for Earth surface users)
-3. **Local Replica Generation**: For each PRN in the satellite search list, we generated local C/A code replicas and prepared them for frequency domain processing by computing their FFT.
-4. **Parallel Search Implementation**: For each satellite, we performed:
-   - A frequency domain search with 500 Hz steps (as shown in Slide 55)
-   - For each frequency bin, we:
-     - Generated the local carrier wave at the current frequency
-     - Mixed the signal with the carrier to obtain I and Q components
-     - Performed circular correlation using FFT methods (as described in Slide 57)
-     - Stored correlation results for this frequency bin
-5. **Peak Detection**: After searching all Doppler bins for a PRN:
-   - Located the maximum correlation peak
-   - Determined its corresponding code phase and Doppler frequency
-   - Calculated the peak metric (ratio of maximum peak to second highest peak)
-   - Applied a threshold detection to determine satellite visibility
-6. **Fine Frequency Estimation**: For detected satellites, we performed a fine frequency search using a longer coherent integration period to refine the Doppler estimate.
+### 2 Implementation
 
-#### 1.2 Detection Criteria
+Our acquisition methodology employed a parallel frequency space search approach to efficiently identify visible satellites and determine their Doppler frequencies and code phases. After conditioning the input signal to remove DC bias, we established a search space with Doppler range of ±5 kHz (500 Hz steps) and full code phase range (1023 chips). For each PRN, we generated local C/A code replicas and transformed them to the frequency domain using FFT. The acquisition process then performed circular cross-correlation between the incoming signal and code replicas across all frequency bins by multiplying their spectral representations and applying inverse FFT. This computationally efficient approach simultaneously evaluated all possible code phases for each Doppler hypothesis. Signal detection relied on comparing the maximum correlation peak to the second highest peak, with threshold determination based on desired false alarm probability. For detected satellites, fine frequency estimation using longer integration periods provided refined Doppler estimates, accommodating the different sampling frequencies and intermediate frequencies between open-sky and urban datasets.
+
+#### 2.1 Detection Criteria
 
 The decision threshold was set based on the desired false alarm probability (Pfa) as described in Slide 53. We used the formula $V_t=\sigma_n \sqrt{-2 \ln P_{f a}}$ to determine the appropriate threshold value, where $σ_n$ is the noise standard deviation.
 
-#### 1.3 Implementation Considerations
+#### 2.2 Implementation Considerations
 
 For practical implementation, we utilized the SoftGNSS framework which employs efficient FFT-based correlation techniques. Several important considerations were made:
 
 - **Sampling Frequency Adjustments**: The different sampling frequencies between the open-sky (58 MHz) and urban (26 MHz) datasets required appropriate parameter adjustments.
 - **Intermediate Frequency Handling**: The different IF values (4.58 MHz for open-sky, 0 MHz for urban) were accounted for in the carrier generation process.
 
-### Task 2: Tracking
+### 3 Experiment Results and Discussions
+
+#### 3.1 Scenario 1: Opensky
+
+The acquisition results demonstrate successful satellite signal detection in an open-sky environment. The bar chart clearly identifies five satellites (PRNs 16, 22, 26, 27, and 31) with acquisition metrics significantly exceeding the detection threshold, indicating strong signal presence. The acquisition process successfully identified the following satellites in the open-sky dataset:
+
+| Channel | PRN  | Frequency   | Doppler | Code Offset | Status |
+| ------- | ---- | ----------- | ------- | ----------- | ------ |
+| 1       | 16   | 4.57976e+06 | -240    | 31994       | T      |
+| 2       | 26   | 4.58192e+06 | 1917    | 57754       | T      |
+| 3       | 31   | 4.58107e+06 | 1066    | 18744       | T      |
+| 4       | 22   | 4.58157e+06 | 1571    | 55101       | T      |
+| 5       | 27   | 4.57678e+06 | -3220   | 8814        | T      |
+
+The acquisition metric results are visualized in the figure below:
+
+<img src="C:\01_Study\AAE6102\img\Acquisition_metric_o.png" alt="Acquisition_metric_o"  />
+
+The acquisition results demonstrate successful satellite signal detection in an open-sky environment. The bar chart clearly identifies five satellites (PRNs 16, 22, 26, 27, and 31) with acquisition metrics significantly exceeding the detection threshold, indicating strong signal presence. 
+
+#### 3.2 Scenario 2: Urban
+
+
+
+
+## Task 2: Tracking
+
+### 1 Objective
+
+The tracking process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
+
+### 2 Implementation
+
+Our approach implements a multi-correlator tracking architecture to analyze GNSS signal characteristics in varying environments. The tracking system incorporates a Phase Lock Loop with Costas discriminator for carrier tracking and a non-coherent Delay Lock Loop for code tracking. We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
+
+$\begin{aligned} & I_E=\sum_{i=1}^N s_i \cdot c_{E, i} \cdot \cos \left(\hat{\phi}_i\right) \\ & Q_E=\sum_{i=1}^N s_i \cdot c_{E, i} \cdot \sin \left(\hat{\phi}_i\right) \\ & I_P=\sum_{i=1}^N s_i \cdot c_{P, i} \cdot \cos \left(\hat{\phi}_i\right) \\ & Q_P=\sum_{i=1}^N s_i \cdot c_{P, i} \cdot \sin \left(\hat{\phi}_i\right) \\ & I_L=\sum_{i=1}^N s_i \cdot c_{L, i} \cdot \cos \left(\hat{\phi}_i\right) \\ & Q_L=\sum_{i=1}^N s_i \cdot c_{L, i} \cdot \sin \left(\hat{\phi}_i\right)\end{aligned}$
+
+The DLL discriminator implements a normalized early-minus-late power formula:
+
+$\epsilon_{\text {code }}=\frac{\sqrt{I_E^2+Q_E^2}-\sqrt{I_L^2+Q_L^2}}{\sqrt{I_E^2+Q_E^2}+\sqrt{I_L^2+Q_L^2}}$
+
+By comparing normalized correlation functions across different epochs and environments, we can identify signal quality variations and multipath effects, particularly evident in urban settings where correlation peaks exhibit reduced magnitude and altered symmetry compared to open-sky scenarios.
+
+### 3 Experiment Results and Discussions
+
+#### 3.1 Scenario 1: Opensky
+
+#### 3.2 Scenario 2: Urban
+
+#### 3.3 The impact of urban interference on the correlation peaks:
+
+## Task 3: Navigation Data Decoding
+
+### 1 Objective
+
+The tracking process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
+
+### 2 Implementation
 
 The tracking process refines the coarse estimates from acquisition using feedback loops to continuously track the signals. A standard tracking architecture was implemented with the following components:
 
-1. Delay-Locked Loop (DLL) for code tracking
-   - Non-coherent early-minus-late power discriminator
-   - Multiple correlators for correlation function analysis (Early, Prompt, Late, Very Early, Very Late)
-   - First-order DLL filter with 2 Hz bandwidth
-2. Phase-Locked Loop (PLL) for carrier tracking
-   - Costas discriminator (data-insensitive)
-   - Third-order PLL filter with 18 Hz bandwidth
+### 3 Experiment Results and Discussions
 
-Special attention was given to the analysis of correlation functions to observe the effects of multipath and NLOS reception in the urban environment.
+## Task 4: Position and Velocity Estimation
 
-### Task 3: Navigation Data Decoding
+### 1 Objective
 
-The navigation data decoding process extracts the broadcast navigation message from the tracked signals. The implementation includes:
+The tracking process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
 
-1. Bit synchronization to determine data bit boundaries
-2. Frame synchronization using preamble detection
-3. Subframe identification and data decoding
-4. Parity checking to ensure data integrity
-5. Extraction of ephemeris parameters, time of week, and other relevant data
+### 2 Implementation
 
-For this task, emphasis was placed on successfully decoding the ephemeris data for at least one satellite, which is essential for computing satellite positions.
+The tracking process refines the coarse estimates from acquisition using feedback loops to continuously track the signals. A standard tracking architecture was implemented with the following components:
 
-### Task 4: Position and Velocity Estimation
+### 3 Experiment Results and Discussions
 
-The position and velocity estimation using Weighted Least Squares (WLS) algorithm was implemented as follows:
+## Task 5: Kalman filter-based positioning
 
-1. Computation of pseudorange measurements based on code phase and transmission time
-2. Satellite position calculation using decoded ephemeris data
-3. Correction of atmospheric delays (ionospheric and tropospheric)
-4. Development of the observation model relating pseudoranges to receiver position
-5. Implementation of the iterative WLS algorithm with weighting based on satellite elevation angles
+### 1 Objective
 
-The positioning performance was evaluated by comparing the estimated positions to the provided ground truth values.
+The tracking process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
 
-### Task 5: Kalman Filter-based Positioning
+### 2 Implementation
 
-An Extended Kalman Filter (EKF) was implemented to provide more robust position and velocity estimation, especially in the challenging urban environment. The EKF implementation includes:
+The tracking process refines the coarse estimates from acquisition using feedback loops to continuously track the signals. A standard tracking architecture was implemented with the following components:
 
-1. State vector definition: [x, y, z, vx, vy, vz, δt, δṫ], representing 3D position, 3D velocity, receiver clock bias, and clock drift
-2. Constant velocity motion model for state transition
-3. Measurement model incorporating both pseudorange and Doppler measurements
-4. Adaptive noise covariance matrices based on signal quality indicators
-5. Sequential measurement update approach for improved robustness
-
-## Results and Discussion
-
-### Scenario 1: Open Sky
-
-#### Acquisition Results
-
-The acquisition process successfully identified the following satellites in the open-sky dataset:
-
-| Channel | PRN  | Frequency   | Doppler | Code Offset | Status |
-| ------- | ---- | ----------- | ------- | ----------- | ------ |
-| 1       | 16   | 4.57976e+06 | -240    | 31994       | T      |
-| 2       | 26   | 4.58192e+06 | 1917    | 57754       | T      |
-| 3       | 31   | 4.58107e+06 | 1066    | 18744       | T      |
-| 4       | 22   | 4.58157e+06 | 1571    | 55101       | T      |
-| 5       | 27   | 4.57678e+06 | -3220   | 8814        | T      |
-
-The acquisition metric results are visualized in the figure below:
-
-![Acquisition Results](https://pfst.cf2.poecdn.net/base/image/f6961f00ae640276641918bd4434226255543de224dc50d1490e9c7777dab9a3?w=161&h=81&pmaid=311097610)
-
-The acquisition results show that satellites 16, 22, 26, 27, and 31 were successfully acquired with different Doppler frequencies and code offsets. The acquisition metric clearly differentiates between acquired and non-acquired signals.
-
-In the urban environment, fewer satellites were acquired successfully, and the acquisition metrics were generally lower due to signal attenuation and multipath effects.
-
-#### Tracking Performance
-
-The tracking performance was analyzed by examining the correlation functions for both datasets. In the open-sky environment, correlation peaks were sharp and well-defined, indicating good signal quality. In contrast, the urban environment exhibited distorted correlation functions due to multipath effects.
-
-The correlation function analysis revealed:
-
-- Clear, symmetrical correlation peaks in open-sky conditions
-- Distorted, asymmetrical correlation peaks in urban conditions, indicating multipath
-- Wider correlation functions in urban conditions, leading to less precise code phase measurements
-- Occasional correlation peak splitting in severe multipath conditions
-
-These differences directly impact the pseudorange measurement accuracy and, consequently, the positioning accuracy.
-
-#### Navigation Data Decoding Results
-
-Navigation data decoding was successful for all acquired satellites in the open-sky dataset. For the urban dataset, successful decoding was more challenging due to signal fading and multipath.
-
-The key ephemeris parameters decoded for satellite PRN 16 include:
-
-- Time of Ephemeris (TOE)
-- Orbit parameters (semi-major axis, eccentricity, inclination)
-- Correction terms for satellite clock error
-- Health status and accuracy indicators
-
-These parameters are essential for computing satellite positions and correcting satellite clock errors in the positioning solution.
-
-#### Position Estimation Results
-
-The position estimation results using WLS are illustrated in the figure below:
-
-![Position Estimation Results](https://pfst.cf2.poecdn.net/base/image/f6961f00ae640276641918bd4434226255543de224dc50d1490e9c7777dab9a3?w=161&h=81&pmaid=311097740)
-
-The figure shows:
-
-- Position variations in East, North, and Up directions over time
-- 3D scatter plot of position estimates
-- Mean position estimate compared to ground truth
-- Satellite distribution in a sky plot with PDOP value
-
-For the open-sky dataset, the WLS solution achieved a mean position error of approximately 3.4 meters, which is consistent with typical GPS performance in good conditions. The Urban dataset, however, exhibited significantly larger errors, with mean position errors exceeding 10 meters in some cases.
-
-The EKF implementation provided smoother trajectory estimates and improved resilience to measurement outliers, particularly in the urban environment. The integration of Doppler measurements in the EKF significantly enhanced velocity estimation accuracy.
-
-### Scenario 2: Urban
-
-#### Acquisition Results
-
-The acquisition process successfully identified the following satellites in the open-sky dataset:
-
-| Channel | PRN  | Frequency   | Doppler | Code Offset | Status |
-| ------- | ---- | ----------- | ------- | ----------- | ------ |
-| 1       | 16   | 4.57976e+06 | -240    | 31994       | T      |
-| 2       | 26   | 4.58192e+06 | 1917    | 57754       | T      |
-| 3       | 31   | 4.58107e+06 | 1066    | 18744       | T      |
-| 4       | 22   | 4.58157e+06 | 1571    | 55101       | T      |
-| 5       | 27   | 4.57678e+06 | -3220   | 8814        | T      |
-
-The acquisition metric results are visualized in the figure below:
-
-![Acquisition Results](https://pfst.cf2.poecdn.net/base/image/f6961f00ae640276641918bd4434226255543de224dc50d1490e9c7777dab9a3?w=161&h=81&pmaid=311097610)
-
-The acquisition results show that satellites 16, 22, 26, 27, and 31 were successfully acquired with different Doppler frequencies and code offsets. The acquisition metric clearly differentiates between acquired and non-acquired signals.
-
-In the urban environment, fewer satellites were acquired successfully, and the acquisition metrics were generally lower due to signal attenuation and multipath effects.
-
-#### Tracking Performance
-
-The tracking performance was analyzed by examining the correlation functions for both datasets. In the open-sky environment, correlation peaks were sharp and well-defined, indicating good signal quality. In contrast, the urban environment exhibited distorted correlation functions due to multipath effects.
-
-The correlation function analysis revealed:
-
-- Clear, symmetrical correlation peaks in open-sky conditions
-- Distorted, asymmetrical correlation peaks in urban conditions, indicating multipath
-- Wider correlation functions in urban conditions, leading to less precise code phase measurements
-- Occasional correlation peak splitting in severe multipath conditions
-
-These differences directly impact the pseudorange measurement accuracy and, consequently, the positioning accuracy.
-
-#### Navigation Data Decoding Results
-
-Navigation data decoding was successful for all acquired satellites in the open-sky dataset. For the urban dataset, successful decoding was more challenging due to signal fading and multipath.
-
-The key ephemeris parameters decoded for satellite PRN 16 include:
-
-- Time of Ephemeris (TOE)
-- Orbit parameters (semi-major axis, eccentricity, inclination)
-- Correction terms for satellite clock error
-- Health status and accuracy indicators
-
-These parameters are essential for computing satellite positions and correcting satellite clock errors in the positioning solution.
-
-#### Position Estimation Results
-
-The position estimation results using WLS are illustrated in the figure below:
-
-![Position Estimation Results](https://pfst.cf2.poecdn.net/base/image/f6961f00ae640276641918bd4434226255543de224dc50d1490e9c7777dab9a3?w=161&h=81&pmaid=311097740)
-
-The figure shows:
-
-- Position variations in East, North, and Up directions over time
-- 3D scatter plot of position estimates
-- Mean position estimate compared to ground truth
-- Satellite distribution in a sky plot with PDOP value
-
-For the open-sky dataset, the WLS solution achieved a mean position error of approximately 3.4 meters, which is consistent with typical GPS performance in good conditions. The Urban dataset, however, exhibited significantly larger errors, with mean position errors exceeding 10 meters in some cases.
-
-The EKF implementation provided smoother trajectory estimates and improved resilience to measurement outliers, particularly in the urban environment. The integration of Doppler measurements in the EKF significantly enhanced velocity estimation accuracy.
-
-### Comparison of Open-sky and Urban Environments
-
-The comparative analysis of the two environments revealed several key differences:
-
-1. **Signal Acquisition:**
-   - Open-sky: Higher acquisition success rate, stronger correlation peaks
-   - Urban: Lower acquisition success rate, weaker and more variable correlation peaks
-2. **Tracking Performance:**
-   - Open-sky: Stable tracking with minimal cycle slips
-   - Urban: Frequent cycle slips, distorted correlation functions due to multipath
-3. **Navigation Data Decoding:**
-   - Open-sky: Reliable decoding for all visible satellites
-   - Urban: Intermittent decoding failures due to signal fading
-4. **Positioning Accuracy:**
-   - Open-sky: Mean position error of ~3.4 meters
-   - Urban: Mean position error of ~10-15 meters, with larger variations
-5. **EKF Performance Improvement:**
-   - Open-sky: Moderate improvement over WLS
-   - Urban: Significant improvement in position stability and accuracy over WLS
-
-The urban environment clearly demonstrated the challenges of GNSS positioning in complex environments, with multipath effects being the dominant error source.
+### 3 Experiment Results and Discussions
 
 ## Conclusion
 
-This assignment provided a comprehensive exploration of GNSS signal processing using a software-defined receiver approach. The analysis successfully demonstrated the impact of environmental conditions on GNSS performance by comparing open-sky and urban scenarios.
-
-Key findings include:
-
-1. Successful implementation of all major components of a GNSS receiver: acquisition, tracking, navigation data decoding, and positioning
-2. Clear demonstration of multipath effects on correlation functions in urban environments
-3. Quantification of positioning performance degradation in urban conditions
-4. Improved robustness through Kalman filtering, especially in challenging conditions
-
-The results underscore the importance of advanced signal processing techniques and filtering approaches for improving GNSS performance in challenging environments.
-
 ## References
-
-1. Borre, K., Akos, D.M., Bertelsen, N., Rinder, P., & Jensen, S.H. (2007). A Software-Defined GPS and Galileo Receiver: A Single-Frequency Approach. Birkhäuser Boston.
-2. Kaplan, E.D., & Hegarty, C.J. (2017). Understanding GPS/GNSS: Principles and Applications (3rd ed.). Artech House.
-3. Misra, P., & Enge, P. (2010). Global Positioning System: Signals, Measurements, and Performance (2nd ed.). Ganga-Jamuna Press.
-4. Takasu, T. (2009). RTKLIB: Open Source Program Package for RTK-GPS. FOSS4G 2009, Tokyo, Japan.
-5. Realini, E., & Reguzzoni, M. (2013). goGPS: Open-source software for enhancing the accuracy of low-cost receivers by single-frequency relative kinematic positioning. Measurement Science and Technology, 24(11).
