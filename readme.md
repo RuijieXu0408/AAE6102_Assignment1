@@ -99,7 +99,7 @@ The implemented acquisition algorithm consists of the following steps:
 
 #### 1.2 Detection Criteria
 
-The decision threshold was set based on the desired false alarm probability (Pfa) as described in Slide 53. We used the formula $`\V_t=\sigma_n \sqrt{-2 \ln P_{f a}}`$ to determine the appropriate threshold value, where $\σ_n$ is the noise standard deviation.
+The decision threshold was set based on the desired false alarm probability (Pfa) as described in Slide 53. We used the formula $V_t=\sigma_n \sqrt{-2 \ln P_{f a}}$ to determine the appropriate threshold value, where $σ_n$ is the noise standard deviation.
 
 #### 1.3 Implementation Considerations
 
