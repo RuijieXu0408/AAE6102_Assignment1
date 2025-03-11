@@ -68,26 +68,45 @@ The datasets used in this analysis have the following characteristics:
 | Ground truth           | (22.328444770087565, 114.1713630049711) | (22.3198722, 114.209101777778) |
 | Data length            | 90 seconds                              | 90 seconds                     |
 
-![image-20250310232514807](C:\Users\User\AppData\Roaming\Typora\typora-user-images\image-20250310232514807.png)
+![Fig1](C:\01_Study\AAE6102\img\Fig1.png)
 
 Figure 1. Data collection locations (Source: Assignment 1)
 
-The processing was implemented using SoftGNSS, a MATLAB-based GNSS software receiver, with modifications to address the specific requirements of each task.
+The code is modified and implemented on SoftGNSS, a MATLAB-based GNSS software receiver, with modifications to address the specific requirements of each task.
 
 ## Methodology
 
-### Task 1: Acquisition
+#### 1.1 Acquisition Algorithm
 
-The acquisition process aims to identify visible satellites and determine initial estimates of Doppler frequency and code phase for each satellite. The parallel code phase search method was implemented, using Fast Fourier Transform (FFT) to efficiently compute correlations between the incoming signal and local replicas.
+The implemented acquisition algorithm consists of the following steps:
 
-The acquisition algorithm follows these steps:
+1. **Signal Conditioning**: The input IF signal was first processed to remove DC bias and buffered into segments of 1-2 milliseconds, corresponding to one complete C/A code period.
+2. **Search Space Definition**: Based on the lecture material (Slide 51), we defined the search ranges as: Doppler frequency range: ±5 kHz (appropriate for Earth surface users)
+3. **Local Replica Generation**: For each PRN in the satellite search list, we generated local C/A code replicas and prepared them for frequency domain processing by computing their FFT.
+4. **Parallel Search Implementation**: For each satellite, we performed:
+   - A frequency domain search with 500 Hz steps (as shown in Slide 55)
+   - For each frequency bin, we:
+     - Generated the local carrier wave at the current frequency
+     - Mixed the signal with the carrier to obtain I and Q components
+     - Performed circular correlation using FFT methods (as described in Slide 57)
+     - Stored correlation results for this frequency bin
+5. **Peak Detection**: After searching all Doppler bins for a PRN:
+   - Located the maximum correlation peak
+   - Determined its corresponding code phase and Doppler frequency
+   - Calculated the peak metric (ratio of maximum peak to second highest peak)
+   - Applied a threshold detection to determine satellite visibility
+6. **Fine Frequency Estimation**: For detected satellites, we performed a fine frequency search using a longer coherent integration period to refine the Doppler estimate.
 
-1. Generate local replicas of C/A codes for all PRN numbers
-2. Perform FFT-based correlation for each Doppler bin in the search range (±10 kHz)
-3. Find correlation peaks above a detection threshold
-4. Record PRN number, Doppler frequency, and code phase for detected satellites
+#### 1.2 Detection Criteria
 
-For both datasets, specific adjustments were made to account for different intermediate frequencies and sampling rates.
+The decision threshold was set based on the desired false alarm probability (Pfa) as described in Slide 53. We used the formula $`\V_t=\sigma_n \sqrt{-2 \ln P_{f a}}`$ to determine the appropriate threshold value, where $\σ_n$ is the noise standard deviation.
+
+#### 1.3 Implementation Considerations
+
+For practical implementation, we utilized the SoftGNSS framework which employs efficient FFT-based correlation techniques. Several important considerations were made:
+
+- **Sampling Frequency Adjustments**: The different sampling frequencies between the open-sky (58 MHz) and urban (26 MHz) datasets required appropriate parameter adjustments.
+- **Intermediate Frequency Handling**: The different IF values (4.58 MHz for open-sky, 0 MHz for urban) were accounted for in the carrier generation process.
 
 ### Task 2: Tracking
 
