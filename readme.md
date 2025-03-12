@@ -1,4 +1,15 @@
 # AAE6102 Assignment 1: GNSS Software-Defined Receiver Analysis
+<head>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            inlineMath: [['$','$']]
+            }
+        });
+    </script>
+</head>
 
 <details open="open">
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
@@ -124,7 +135,7 @@ The tracking process refines the coarse estimates obtained from the acquisition 
 
 Our approach implements a multi-correlator tracking architecture to analyze GNSS signal characteristics in varying environments. The tracking system incorporates a Phase Lock Loop with Costas discriminator for carrier tracking and a non-coherent Delay Lock Loop for code tracking. We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
 
-$$I_E=\sum_{i=1}^N s_i \cdot c_{E, i} \cdot \cos \left(\hat{\phi}_i\right)$$
+$I_E=\sum_{i=1}^N s_i \cdot c_{E, i} \cdot \cos \left(\hat{\phi}_i\right)$$
 $Q_E=\sum_{i=1}^N s_i \cdot c_{E, i} \cdot \sin \left(\hat{\phi}_i\right)$
 $I_P=\sum_{i=1}^N s_i \cdot c_{P, i} \cdot \cos \left(\hat{\phi}_i\right)$
 $Q_P=\sum_{i=1}^N s_i \cdot c_{P, i} \cdot \sin \left(\hat{\phi}_i\right)$
