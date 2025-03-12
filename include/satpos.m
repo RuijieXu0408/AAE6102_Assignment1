@@ -1,4 +1,4 @@
-function [satPositions, satClkCorr] = satpos(transmitTime, prnList,eph) 
+function [satPositions, satClkCorr, satVelocity] = satpos(transmitTime, prnList,eph) 
 %SATPOS Calculation of X,Y,Z satellites coordinates at TRANSMITTIME for
 %given ephemeris EPH. Coordinates are calculated for each satellite in the
 %list PRNLIST.
@@ -143,48 +143,48 @@ for satNr = 1 : numOfSatellites
                          eph(prn).T_GD + dtr;       
                      
 %% The following is to calculate sv velocity (currently not used in this version)
-% %% Computation of SV velocity in ECEF -----------------------------------
-%     % 2.12 Derivative of eccentric Anomaly ----------------------------
-%     dE = n/(1-eph(prn).e *cos(E));
-%     
-%     % 2.13 Derivative of argument of Latitude --------------------------
-%     dphi = sqrt(1 - eph(prn).e^2) * dE / (1-eph(prn).e *cos(E));
-%     
-%     % 2.14-2.15 Derivative of the following terms ------------------------   
-%     % Derivative of argument of latitude
-%     du = dphi + ...
-%         2*dphi*(-eph(prn).C_uc * sin(2*phi) + ...
-%         eph(prn).C_us * cos(2*phi));
-%     
-% 	% Derivative of radius
-%     %Correct radius
-%     dr = a * eph(prn).e * dE *sin(E) + ...
-%         2*dphi*(-eph(prn).C_rc * sin(2*phi) + ...
-%         eph(prn).C_rs * cos(2*phi));
-%     
-% 	% Derivative of inclination
-%     %Correct inclination
-%     di = eph(prn).iDot + ...
-%         2*dphi*(-eph(prn).C_ic * sin(2*phi) + ...
-%         eph(prn).C_is * cos(2*phi));
-%     
-%     % Derivative of Longitude of Ascending Node
-%     dOmega = eph(prn).omegaDot - Omegae_dot;
-%     
-%     % 2.16 SV velocity in orbital plane ------------------------
-%     dxk1 = dr*cos(u) - r*du*sin(u);
-%     dyk1 = dr*sin(u) + r*du*cos(u);
-%     
-%     % 2.17 SV velocity in ECEF ------------------------
-%     satVolocity(1, satNr) = -yk*dOmega - (dyk1*cos(i) - zk*di) * sin(Omega) + dxk1*cos(Omega);
-%     satVolocity(2, satNr) = xk*dOmega  + (dyk1*cos(i) - zk*di) * cos(Omega) + dxk1*sin(Omega) ;
-%     satVolocity(3, satNr) = dyk1*sin(i) + yk1*di*cos(i);
-% 
-% %% 4¡¢Include relativistic correction in clock rate correction  -------------
-%     % Relativistic correction
-%     dtrRat = F * eph(prn).e * eph(prn).sqrtA * cos(E) *dE;
-%     
-% 	% The clock drift is relative small, thus can be neglectde at most time.
-%     satClkCorrRat(satNr) = 2* eph(prn).a_f2 * dt + eph(prn).a_f1 + dtrRat;                    
+%% Computation of SV velocity in ECEF -----------------------------------
+    % 2.12 Derivative of eccentric Anomaly ----------------------------
+    dE = n/(1-eph(prn).e *cos(E));
+
+    % 2.13 Derivative of argument of Latitude --------------------------
+    dphi = sqrt(1 - eph(prn).e^2) * dE / (1-eph(prn).e *cos(E));
+
+    % 2.14-2.15 Derivative of the following terms ------------------------   
+    % Derivative of argument of latitude
+    du = dphi + ...
+        2*dphi*(-eph(prn).C_uc * sin(2*phi) + ...
+        eph(prn).C_us * cos(2*phi));
+
+	% Derivative of radius
+    %Correct radius
+    dr = a * eph(prn).e * dE *sin(E) + ...
+        2*dphi*(-eph(prn).C_rc * sin(2*phi) + ...
+        eph(prn).C_rs * cos(2*phi));
+
+	% Derivative of inclination
+    %Correct inclination
+    di = eph(prn).iDot + ...
+        2*dphi*(-eph(prn).C_ic * sin(2*phi) + ...
+        eph(prn).C_is * cos(2*phi));
+
+    % Derivative of Longitude of Ascending Node
+    dOmega = eph(prn).omegaDot - Omegae_dot;
+
+    % 2.16 SV velocity in orbital plane ------------------------
+    dxk1 = dr*cos(u) - r*du*sin(u);
+    dyk1 = dr*sin(u) + r*du*cos(u);
+
+    % 2.17 SV velocity in ECEF ------------------------
+    satVelocity(1, satNr) = -yk*dOmega - (dyk1*cos(i) - zk*di) * sin(Omega) + dxk1*cos(Omega);
+    satVelocity(2, satNr) = xk*dOmega  + (dyk1*cos(i) - zk*di) * cos(Omega) + dxk1*sin(Omega) ;
+    satVelocity(3, satNr) = dyk1*sin(i) + yk1*di*cos(i);
+
+%% 4¡¢Include relativistic correction in clock rate correction  -------------
+    % Relativistic correction
+    dtrRat = F * eph(prn).e * eph(prn).sqrtA * cos(E) *dE;
+
+	% The clock drift is relative small, thus can be neglectde at most time.
+    satClkCorrRat(satNr) = 2* eph(prn).a_f2 * dt + eph(prn).a_f1 + dtrRat;                    
    
 end % for satNr = 1 : numOfSatellites

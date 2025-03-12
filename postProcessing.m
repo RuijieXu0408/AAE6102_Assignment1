@@ -149,21 +149,25 @@ end
 
     disp('   Processing is complete for this data block');
 
-
+    
 
     %% Plot tracking
     disp ('   Ploting trackResults...');
-    AssignmentPlot(trackResults, navSolutions);
 
-% %% Plot all results =======================================================
-%     disp ('   Ploting results...');
-%     if settings.plotTracking
-%         plotTracking(1:settings.numberOfChannels, trackResults, settings);
-%     end
-% 
-%     plotNavigation(navSolutions, settings);
-% 
-%     disp('Post processing of the signal is over.');
+    % Task2(trackResults, navSolutions);
+    % AssignmentPlot(trackResults, navSolutions);
+    % Task4(trackResults, navSolutions);
+    Task5(trackResults, navSolutions);
+
+%% Plot all results =======================================================
+    disp ('   Ploting results...');
+    if settings.plotTracking
+        plotTracking(1:settings.numberOfChannels, trackResults, settings);
+    end
+
+    plotNavigation(navSolutions, settings);
+
+    disp('Post processing of the signal is over.');
 
 else
     % Error while opening the data file.

@@ -68,7 +68,9 @@ subFrameStart  = inf(1, settings.numberOfChannels);
 % Time Of Week (TOW) of the first message(in seconds). Corresponding value
 % will be set to inf if no valid preambles were detected in the channel.
 TOW  = inf(1, settings.numberOfChannels);
-
+%% EKF P and Q matrix for initialization from RayJ
+P = diag([10000,10000,10000,100,100,100,10000,100]);
+Q = diag([1,1,1,100,100,100,1,100]);
 %--- Make a list of channels excluding not tracking channels ---------------
 activeChnList = find([trackResults.status] ~= '-');
 
@@ -145,6 +147,8 @@ readyChnList = activeChnList;
 % first fix, localTime will be updated by measurement sample step.
 localTime = inf;
 
+
+
 %##########################################################################
 %#   Do the satellite and receiver position calculations                  #
 %##########################################################################
@@ -178,20 +182,43 @@ for currMeasNr = 1:measNrSum
     % (in unit IF signal sample point)
     currMeasSample = sampleStart + measSampleStep*(currMeasNr-1);
     
-%% Find pseudoranges ======================================================
+%% Find pseudoranges revised on 03102025 by RayJ ======================================================
     % Raw pseudorange = (localTime - transmitTime) * light speed (in m)
     % All output are 1 by settings.numberOfChannels columme vecters.
     [navSolutions.rawP(:, currMeasNr),transmitTime,localTime]=  ...
                      calculatePseudoranges(trackResults,subFrameStart,TOW, ...
                      currMeasSample,localTime,activeChnList, settings);
-    
+
+    doppler = zeros(1, max(activeChnList));
+    % 对每个活跃通道计算多普勒频�?
+    for channelNr = activeChnList
+        % 查找当前测量样本之前的最近索引点
+        for index = 1:length(trackResults(channelNr).absoluteSample)
+            if(trackResults(channelNr).absoluteSample(index) > currMeasSample)
+                break
+            end
+        end
+        
+        % 使用最后一个小于当前测量样本的索引�?
+        index = index - 1;
+        
+        % 获取该索引处的载波频�?
+        carrFreq = trackResults(channelNr).carrFreq(index);
+        
+        % 计算多普勒频移（m/s�?
+        doppler(channelNr) = (carrFreq - settings.IF) * settings.c / 1575.42e6;
+    end
+
+    % 保存计算结果到navSolutions结构�?
+    navSolutions.rawD(:, currMeasNr) = doppler;
+
     % Save transmitTime
     navSolutions.transmitTime(activeChnList, currMeasNr) = ...
                                         transmitTime(activeChnList);
 
 %% Find satellites positions and clocks corrections =======================
     % Outputs are all colume vectors corresponding to activeChnList
-    [satPositions, satClkCorr] = satpos(transmitTime(activeChnList), ...
+    [satPositions, satClkCorr,satVelocity] = satpos(transmitTime(activeChnList), ...
                                  [trackResults(activeChnList).PRN], eph); 
                                     
      
@@ -207,8 +234,14 @@ for currMeasNr = 1:measNrSum
         % Correct pseudorange for SV clock error
         clkCorrRawP = navSolutions.rawP(activeChnList, currMeasNr)' + ...
                                                    satClkCorr * settings.c;
-
+        
+        
+        clkCorrRawD = navSolutions.rawD(activeChnList, currMeasNr)';
         % Calculate receiver position
+        % [xyzdt,navSolutions.el(activeChnList, currMeasNr), ...
+        %        navSolutions.az(activeChnList, currMeasNr), ...
+        %        navSolutions.DOP(:, currMeasNr)] =...
+        %                leastSquarePos(satPositions, clkCorrRawP, settings,satVelocity,clkCorrRawD);
         [xyzdt,navSolutions.el(activeChnList, currMeasNr), ...
                navSolutions.az(activeChnList, currMeasNr), ...
                navSolutions.DOP(:, currMeasNr)] =...
@@ -220,7 +253,74 @@ for currMeasNr = 1:measNrSum
         navSolutions.Y(currMeasNr)  = xyzdt(2);
         navSolutions.Z(currMeasNr)  = xyzdt(3);       
         
-        navSolutions.satllitePosition{currMeasNr}=satPositions; %%add by HD
+
+                %=== Calculate receiver velocity using WLS =================================
+        % Initialize parameters for WLS velocity calculation
+        numSatellites = size(activeChnList, 2);
+        A = zeros(numSatellites, 4);  % Design matrix for velocity
+        b = zeros(numSatellites, 1);  % Observation vector
+
+        % Form the geometry matrix and observation vector
+        for i = 1:numSatellites
+            % Unit vector from receiver to satellite
+            dx = satPositions(1, i) - xyzdt(1);
+            dy = satPositions(2, i) - xyzdt(2);
+            dz = satPositions(3, i) - xyzdt(3);
+            range = sqrt(dx^2 + dy^2 + dz^2);
+
+            % Line-of-sight unit vector components
+            A(i, 1) = dx / range;
+            A(i, 2) = dy / range;
+            A(i, 3) = dz / range;
+            A(i, 4) = 1; % Clock drift term
+
+            % Observation: Doppler measurement adjusted by satellite velocity projection
+            % Convert Doppler to range rate (negative sign because positive Doppler = decreasing range)
+            rangeRate = -clkCorrRawD(i);
+
+            % Remove satellite velocity component along line-of-sight
+            % satRangeRateComponent = (satVelocity(1,i)*dx + satVelocity(2,i)*dy + satVelocity(3,i)*dz) / range;
+            svVel = satVelocity(:,i);
+            satRangeRateComponent = dot([dx dy dz], svVel)/range;
+
+            % Observation is measured range rate minus satellite contribution
+            b(i) = rangeRate - satRangeRateComponent;
+        end
+
+        % Apply elevation-dependent weighting
+        weights = sin(navSolutions.el(activeChnList, currMeasNr) * pi/180).^2;
+        W = diag(weights);
+
+        % Weighted least squares solution for velocity
+        vel_solution = inv(A' * W * A) * A' * W * b;
+
+        % Save velocity components
+        navSolutions.vX(currMeasNr) = vel_solution(1);
+        navSolutions.vY(currMeasNr) = vel_solution(2);
+        navSolutions.vZ(currMeasNr) = vel_solution(3);
+        navSolutions.driftRate(currMeasNr) = vel_solution(4); % Clock drift rate
+
+        navSolutions.satllitePosition{currMeasNr} = satPositions; 
+        navSolutions.satelliteVelocity{currMeasNr} = satVelocity; % Store satellite velocities
+
+        %% static SPP with Extended Kalman Filter --sbs
+        if currMeasNr == 1
+            X = [xyzdt(1:3),0,0,0,xyzdt(4),0]';
+        else
+            X(7)=0;  % rcv clk bias has been corrected after 1st epoch, so it should be 0 --sbs
+        end
+        [X_k, P_k]= ExtendedKF(satPositions,satVelocity,clkCorrRawP,clkCorrRawD,settings,X,P,Q);
+
+        % save the ekf result --sbs
+        navSolutions.X_kf(currMeasNr)  = X_k(1);
+        navSolutions.Y_kf(currMeasNr)  = X_k(2);
+        navSolutions.Z_kf(currMeasNr)  = X_k(3);     
+        navSolutions.VX_kf(currMeasNr)  = X_k(4);
+        navSolutions.VY_kf(currMeasNr)  = X_k(5);
+        navSolutions.VZ_kf(currMeasNr)  = X_k(6);   
+        X = X_k;
+        P = P_k;
+
 
 		% For first calculation of solution, clock error will be set 
         % to be zero
@@ -266,7 +366,31 @@ for currMeasNr = 1:measNrSum
          navSolutions.U(currMeasNr)] = cart2utm(xyzdt(1), xyzdt(2), ...
                                                 xyzdt(3), ...
                                                 navSolutions.utmZone);
-        
+
+                                                logStart = 0;
+                                                if currMeasNr>logStart
+                                                    %=== Convert to geodetic coordinates ==============================
+                                                    [navSolutions.latitude_kf(currMeasNr-logStart), ...
+                                                        navSolutions.longitude_kf(currMeasNr-logStart), ...
+                                                        navSolutions.height_kf(currMeasNr-logStart)] = cart2geo(...
+                                                        navSolutions.X_kf(currMeasNr-logStart), ...
+                                                        navSolutions.Y_kf(currMeasNr-logStart), ...
+                                                        navSolutions.Z_kf(currMeasNr-logStart), ...
+                                                        5);
+                                        
+                                                    %=== Convert to UTM coordinate system =============================
+                                                    % navSolutions.utmZone_kf = findUtmZone(navSolutions.latitude_kf(currMeasNr-logStart), ...
+                                                    %                                navSolutions.longitude_kf(currMeasNr-logStart));
+                                                    %
+                                                    % Position in ENU
+                                                    [navSolutions.E_kf(currMeasNr-logStart), ...
+                                                        navSolutions.N_kf(currMeasNr-logStart), ...
+                                                        navSolutions.U_kf(currMeasNr-logStart)] = cart2utm(X(1), X(2), ...
+                                                        X(3), ...
+                                                        navSolutions.utmZone);
+                                        
+                                                end 
+                                                
     else
         %--- There are not enough satellites to find 3D position ----------
         disp(['   Measurement No. ', num2str(currMeasNr), ...
