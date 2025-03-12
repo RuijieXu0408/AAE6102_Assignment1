@@ -55,6 +55,19 @@ Figure 1. Data collection locations (Source: Assignment 1)
 
 The code is modified and implemented on SoftGNSS, a MATLAB-based GNSS software receiver, with modifications to address the specific requirements of each task.
 
+## Instructions
+
+If you want to switch the scenario, you should find the init.m code to 
+
+`%% Initialize constants, settings`
+`=========================================% `
+`%% if choose opensky scenario, use this --RayJ`
+`settings = initSettings_opensky();`
+`%% if choose urabn scenario, use this --RayJ`
+`% settings = initSettings_urban();`
+
+You can find the implementation of each assignment task in function Task2/4/5. For Task1 and 3, you can find the result at the beginning of the output.
+
 ## Task 1: Acquisition
 
 ### 1 Objective
@@ -92,9 +105,9 @@ The acquisition results demonstrate successful satellite signal detection in an 
 
 The acquisition metric results are visualized in the figure below:
 
-<img src="C:\01_Study\AAE6102\img\Acquisition_metric_o.png" alt="Acquisition_metric_o"  />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_o.png" alt="Acquisition_metric_o"  />
 
-<img src="C:\01_Study\AAE6102\img\skyplot_sky.png" alt="skyplot_sky" style="zoom:50%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_sky.png" alt="skyplot_sky" style="zoom:50%;" />
 
 The acquisition results demonstrate successful satellite signal detection in an open-sky environment. The bar chart clearly identifies five satellites (PRNs 16, 22, 26, 27, and 31) with acquisition metrics significantly exceeding the detection threshold, indicating strong signal presence. 
 
@@ -109,9 +122,9 @@ Four satellites signal are acquired. Compared to the Opensky scenario, the acqui
 |       3 |  11 |  4.09126e+02 |     409   |      1155   |     T  |
 |       4 |  18 |  -3.22342e+02 |    -322   |     10581   |     T  |
 
-![Acquisition_metric_u](C:\01_Study\AAE6102\img\Acquisition_metric_u.png)
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_u.png" alt="Acquisition_metric_u"/>
 
-<img src="C:\01_Study\AAE6102\img\skyplot_urban.png" alt="skyplot_urban" style="zoom:67%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_urban.png" alt="skyplot_urban" style="zoom:67%;" />
 
 
 ## Task 2: Tracking
@@ -124,7 +137,7 @@ The tracking process refines the coarse estimates obtained from the acquisition 
 
 Our approach implements a multi-correlator tracking architecture to analyze GNSS signal characteristics in varying environments. The tracking system incorporates a Phase Lock Loop with Costas discriminator for carrier tracking and a non-coherent Delay Lock Loop for code tracking. We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
 
-<img src="C:\01_Study\AAE6102\img\formula1.png" alt="image-20250312162043019" style="zoom:20%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula1.png" alt="image-20250312162043019" style="zoom:20%;" />
 
 The DLL discriminator implements a normalized early-minus-late power formula:
 
@@ -144,11 +157,11 @@ These multiple correlation points enable detailed visualization of the auto-corr
 
 The figures below show the ACF analysis of each visible PRN. The ACF exhibits symmetric, well-defined correlation peaks across all measurement epochs, characteristic of clean line-of-sight signal reception with minimal distortion. This symmetry confirms the absence of significant multipath effects in the open-sky environment. 
 
-![ACF_sky](C:\01_Study\AAE6102\img\ACF_sky.png)
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_sky.png" alt="ACF_sky" />
 
 Since the signal of PRN16 has the best performance in this observation, we select PRN16 as an example for detailed analysis. 
 
-![tracking](C:\01_Study\AAE6102\img\tracking.png)
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking.png" alt="tracking" />
 
 The tracking performance in open-sky conditions demonstrates:
 
@@ -161,9 +174,9 @@ The tracking performance in open-sky conditions demonstrates:
 
 The urban ACF exhibits asymmetric correlation peaks with notable distortions. This asymmetry is a telltale signature of multipath effects, where reflected signals combine with the direct path signal to create correlation function deformations. These distortions lead to biased pseudorange measurements and degraded positioning accuracy.
 
-![ACF_urban](C:\01_Study\AAE6102\img\ACF_urban.png)
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_urban.png" alt="ACF_urban" />
 
-![tracking_urban](C:\01_Study\AAE6102\img\tracking_urban.png)
+![tracking_urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking_urban.png)
 
 #### 3.3 The impact of urban interference on the correlation peaks:
 
@@ -292,21 +305,21 @@ Where $b_i$ =$\dot{\rho}*i$ - $\vec{v}*{sat,i}$ $\cdot \vec{u}_i$ and $\vec{u}_i
 
 Figure below shows the WLS **positioning result** of the opensky scenario, where red dots represent the estimation and yellow dot means the ground truth.
 
-![WLS_sky](C:\01_Study\AAE6102\img\WLS_sky.png)
+![WLS_sky](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/WLS_sky.png)
 
 This figure below shows **velocity estimation** result of the opensky scenario.
 
-<img src="C:\01_Study\AAE6102\img\v_Opensky.png" alt="v_Opensky" style="zoom:80%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky.pngg" alt="v_Opensky" style="zoom:80%;" />
 
 #### Scenario 2: Urban
 
 Figure below shows the WLS positioning result of the urban scenario, where red dots represent the estimation and yellow dot means the ground truth.
 
-![WLS_Urban](C:\01_Study\AAE6102\img\WLS_Urban.png)
+![WLS_Urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/WLS_Urban.png)
 
 This figure below shows velocity estimation result of the urban scenario.
 
-<img src="C:\01_Study\AAE6102\img\v_Urban.png" alt="v_Urban" style="zoom:67%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Urban.png" alt="v_Urban" style="zoom:67%;" />
 
 
 
@@ -321,11 +334,11 @@ The EKF consists of prediction and update stages:
 
 **Prediction:**
 
-<img src="C:\Users\User\AppData\Roaming\Typora\typora-user-images\image-20250312201007938.png" alt="image-20250312201007938" style="zoom:20%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula3.png" alt="image-20250312201007938" style="zoom:20%;" />
 
 **Update:**
 
-<img src="C:\Users\User\AppData\Roaming\Typora\typora-user-images\image-20250312201100890.png" alt="image-20250312201100890" style="zoom:20%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula4.png" alt="image-20250312201100890" style="zoom:20%;" />
 
 ### 2 Experiment Results and Discussions
 
@@ -333,11 +346,11 @@ The EKF consists of prediction and update stages:
 
 The EKF solution demonstrates superior stability compared to WLS, effectively suppressing noise while maintaining accuracy. The trajectory shows smoother transitions between epochs, removing the characteristic "jumpiness" of WLS solutions.
 
-![KF_sky](C:\01_Study\AAE6102\img\KF_sky.png)
+![KF_sky](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/KF_sky.png)
 
 This figure below shows **velocity estimation** result of the opensky scenario. Velocity estimates exhibit significantly improved consistency, leveraging the temporal correlation inherent in Kalman filtering to reduce epoch-to-epoch variations.
 
-<img src="C:\01_Study\AAE6102\img\v_Opensky_kf.png" alt="v_Opensky_kf" style="zoom:80%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky_kf.png" alt="v_Opensky_kf" style="zoom:80%;" />
 
 #### Scenario 2: Urban
 
@@ -345,13 +358,13 @@ This figure below shows **velocity estimation** result of the opensky scenario. 
 
 While the urban EKF solution still experiences accuracy limitations due to the challenging signal environment, it displays markedly improved stability compared to the WLS approach. The filter effectively mitigates outliers and produces a more coherent trajectory.
 
-![WLS_Urban](C:\01_Study\AAE6102\img\KF_Urban.png)
+![WLS_Urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/KF_Urban.png)
 
 **Urban EKF Velocity**
 
 Urban velocity estimates benefit substantially from Kalman filtering, though they remain less accurate than open-sky results due to the fundamental measurement challenges in urban environments.
 
-<img src="C:\01_Study\AAE6102\img\v_Urban_kf.png" alt="v_Urban_kf" style="zoom:67%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Urban_kf.png" alt="v_Urban_kf" style="zoom:67%;" />
 
 The EKF demonstrates clear advantages over WLS by incorporating a dynamic model that:
 
@@ -366,7 +379,7 @@ These characteristics make Kalman filtering particularly valuable in challenging
 
 The graph displays positioning error comparisons between Weighted Least Squares (WLS) and Extended Kalman Filter (EKF) methods across two distinct GNSS reception environments. Results confirm two key findings: environment significantly impacts positioning accuracy, and EKF consistently outperforms WLS, particularly in challenging urban conditions where its filtering capabilities effectively mitigate measurement noise.
 
-![conclusion](C:\01_Study\AAE6102\img\conclusion.png)
+![conclusion](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/conclusion.png)
 
 ## References
 
