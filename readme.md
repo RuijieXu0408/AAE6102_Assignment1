@@ -294,7 +294,7 @@ The weighted solution is given by:
 For velocity estimation, we leverage Doppler measurements:
 $\dot{\rho}_i=-\lambda \cdot f_{\text {doppler }, i}$
 
-The velocity solution follows a similar WLS structure:<img src="C:\01_Study\AAE6102\img\formula2.png" alt="image-20250312162341113" style="zoom:20%;" />
+The velocity solution follows a similar WLS structure:<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula2.png" alt="image-20250312162341113" style="zoom:20%;" />
 
 
 Where $b_i$ =$\dot{\rho}*i$ - $\vec{v}*{sat,i}$ $\cdot \vec{u}_i$ and $\vec{u}_i$ is the unit line-of-sight vector.
