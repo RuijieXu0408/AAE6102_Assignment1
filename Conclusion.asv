@@ -1,0 +1,9 @@
+clc;clear;close all;
+
+load("PosErr_Sky.mat");
+load("PosErr_Urban.mat");
+load("PosErr_Opensky_kf.mat");
+load("PosErr_Urban_kf.mat");
+
+plot(1:39,)
+

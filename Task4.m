@@ -1,8 +1,8 @@
 function Task4(trackResults, navSolutions)
 %% for Weighted Least Square for positioning (elevation based)
 figure(401);
-% lla_gt = [22.328444770087565,114.1713630049711 0]; %% Opensky gt --RayJ
-open_gt = [22.3198722,114.209101777778 0]; %% Urban gt --RayJ
+open_gt = [22.328444770087565,114.1713630049711 0]; %% Opensky gt --RayJ
+% open_gt = [22.3198722,114.209101777778 0]; %% Urban gt --RayJ
 geoscatter(open_gt(1),open_gt(2),"*");
 geobasemap satellite;
 
@@ -10,6 +10,7 @@ for i=1:size(navSolutions.latitude,2)
     geoplot(navSolutions.latitude(i),navSolutions.longitude(i),'r*', 'MarkerSize', 10);hold on;
 end
   geoplot(open_gt(1),open_gt(2),'o','MarkerFaceColor','y', 'MarkerSize', 10,'MarkerEdgeColor','y');hold on;
+  legend('Estimated Position','Ground Truth');
 
 figure(402);
 % lla_gt = [22.328444770087565,114.1713630049711 0]; %% Opensky gt --RayJ

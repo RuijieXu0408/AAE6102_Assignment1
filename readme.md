@@ -296,6 +296,8 @@ Figure below shows the WLS **positioning result** of the opensky scenario, where
 
 This figure below shows **velocity estimation** result of the opensky scenario.
 
+<img src="C:\01_Study\AAE6102\img\v_Opensky.png" alt="v_Opensky" style="zoom:80%;" />
+
 #### Scenario 2: Urban
 
 Figure below shows the WLS positioning result of the urban scenario, where red dots represent the estimation and yellow dot means the ground truth.
@@ -305,6 +307,8 @@ Figure below shows the WLS positioning result of the urban scenario, where red d
 This figure below shows velocity estimation result of the urban scenario.
 
 <img src="C:\01_Study\AAE6102\img\v_Urban.png" alt="v_Urban" style="zoom:67%;" />
+
+
 
 
 ## Task 5: Kalman filter-based positioning
@@ -329,9 +333,11 @@ The EKF consists of prediction and update stages:
 
 The EKF solution demonstrates superior stability compared to WLS, effectively suppressing noise while maintaining accuracy. The trajectory shows smoother transitions between epochs, removing the characteristic "jumpiness" of WLS solutions.
 
-
+![KF_sky](C:\01_Study\AAE6102\img\KF_sky.png)
 
 This figure below shows **velocity estimation** result of the opensky scenario. Velocity estimates exhibit significantly improved consistency, leveraging the temporal correlation inherent in Kalman filtering to reduce epoch-to-epoch variations.
+
+<img src="C:\01_Study\AAE6102\img\v_Opensky_kf.png" alt="v_Opensky_kf" style="zoom:80%;" />
 
 #### Scenario 2: Urban
 
@@ -345,6 +351,8 @@ While the urban EKF solution still experiences accuracy limitations due to the c
 
 Urban velocity estimates benefit substantially from Kalman filtering, though they remain less accurate than open-sky results due to the fundamental measurement challenges in urban environments.
 
+<img src="C:\01_Study\AAE6102\img\v_Urban_kf.png" alt="v_Urban_kf" style="zoom:67%;" />
+
 The EKF demonstrates clear advantages over WLS by incorporating a dynamic model that:
 
 1. Provides temporal continuity between epochs
@@ -356,7 +364,9 @@ These characteristics make Kalman filtering particularly valuable in challenging
 
 ## Conclusion
 
+The graph displays positioning error comparisons between Weighted Least Squares (WLS) and Extended Kalman Filter (EKF) methods across two distinct GNSS reception environments. Results confirm two key findings: environment significantly impacts positioning accuracy, and EKF consistently outperforms WLS, particularly in challenging urban conditions where its filtering capabilities effectively mitigate measurement noise.
 
+![conclusion](C:\01_Study\AAE6102\img\conclusion.png)
 
 ## References
 
