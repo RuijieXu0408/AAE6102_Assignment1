@@ -120,7 +120,7 @@ settings.truePosition.U     = nan;
 
 %% Plot settings ==========================================================
 % Enable/disable plotting of the tracking results for each channel
-settings.plotTracking       = 1;            % 0 - Off
+settings.plotTracking       = 0;            % 0 - Off
                                             % 1 - On
 %% Constants ==============================================================
 settings.c                  = 299792458;    % The speed of light, [m/s]

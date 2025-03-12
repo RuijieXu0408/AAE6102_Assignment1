@@ -17,8 +17,6 @@ v=[];
 for i=1:size(navSolutions.vX,2)
    v=[v;navSolutions.VX_kf(i),navSolutions.VY_kf(i),navSolutions.VZ_kf(i)] ;
 end
-v_Urban_kf = v;
-save('v_Urban_kf.mat','v_Urban_kf');
+v_U
 plot(1:39,v(:,1),1:39,v(:,2));
-title('Velocity Estimation Result (ECEF)');
-legend('x (m/s)','y (m/s)')
+legend('x (ECEF)','y (ECEF)')

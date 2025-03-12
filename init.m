@@ -52,10 +52,10 @@ fprintf('                   -------------------------------\n\n');
 
 %% Initialize constants, settings =========================================
 % %% if choose opensky scenario, use this --RayJ
-% settings = initSettings_opensky();
+settings = initSettings_opensky();
 
 %% if choose urabn scenario, use this --RayJ
-settings = initSettings_urban();
+% settings = initSettings_urban();
 
 %% Generate plot of raw data and ask if ready to start processing =========
 try

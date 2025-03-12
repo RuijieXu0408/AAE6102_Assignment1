@@ -59,7 +59,7 @@ addpath include
 addpath common
 disp ('Starting processing...');
 
-settings = initSettings_opensky();
+settings = initSettings_urban();
 [fid, message] = fopen(settings.fileName, 'rb');
 probeData(settings);
 %Initialize the multiplier to adjust for the data type
@@ -153,14 +153,15 @@ end
 
     %% Plot tracking
     disp ('   Ploting trackResults...');
-
-    Task2(trackResults, navSolutions);
     % AssignmentPlot(trackResults, navSolutions);
+
+    % Task2(trackResults, navSolutions);
     Task4(trackResults, navSolutions);
-    Task5(trackResults, navSolutions);
+    % Task5(trackResults, navSolutions);
 
 %% Plot all results =======================================================
     disp ('   Ploting results...');
+    % plotTracking(1:settings.numberOfChannels, trackResults, settings);
     if settings.plotTracking
         plotTracking(1:settings.numberOfChannels, trackResults, settings);
     end
