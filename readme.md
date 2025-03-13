@@ -36,7 +36,7 @@
 
 This repository is the assignment 1 implementation for 2024-25 Semester 2, AAE6102 Satellite Communication and Navigation, The Hong Kong Polytechnic University. The author is XU Ruijie (23036234R) from Dept. AAE, PolyU. For any issues, please contact her via email [23036234R@connect.polyu.hk](mailto:23036234R@connect.polyu.hk).
 
-This report presents the analysis of GNSS signal processing using a Software-Defined Receiver (SDR) approach. The objective is to process and analyze real Intermediate Frequency (IF) datasets collected in two different environments: an open-sky area and an urban environment. The implementation and analysis focus on five key aspects of GNSS signal processing: acquisition, tracking, navigation data decoding, position estimation using Weighted Least Squares (WLS), and position estimation using an Extended Kalman Filter (EKF).
+This report presents the analysis of GNSS signal processing using a Software-Defined Receiver (SDR) approach. The objective is to process and analyze real Intermediate Frequency (IF) datasets collected in two different environments: an open-sky area and an urban environment. The implementation and analysis focus on five key aspects of GNSS signal processing: acquisition, , navigation data decoding, position estimation using Weighted Least Squares (WLS), and position estimation using an Extended Kalman Filter (EKF).
 
 The datasets used in this analysis have the following characteristics:
 
@@ -127,15 +127,15 @@ Four satellites signal are acquired. Compared to the Opensky scenario, the acqui
 <center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_urban.png" alt="skyplot_urban" width="300" /> </center>
 
 
-## Task 2: Tracking
+## Task 2: 
 
 ### 1 Objective
 
-The tracking process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
+The  process refines the coarse estimates obtained from the acquisition stage using feedback loops to continuously track the satellite signals. For this task, we focused on analyzing the impact of urban interference on the correlation function shape by implementing and examining multiple correlators.
 
 ### 2 Implementation
 
-Our approach implements a multi-correlator tracking architecture to analyze GNSS signal characteristics in varying environments. The tracking system incorporates a Phase Lock Loop with Costas discriminator for carrier tracking and a non-coherent Delay Lock Loop for code tracking. We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
+Our approach implements a multi-correlator  architecture to analyze GNSS signal characteristics in varying environments. The  system incorporates a Phase Lock Loop with Costas discriminator for carrier  and a non-coherent Delay Lock Loop for code . We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
 
 <center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula1.png" alt="image-20250312162043019" width="160" /> </center>
 
@@ -161,13 +161,13 @@ The figures below show the ACF analysis of each visible PRN. The ACF exhibits sy
 
 Since the signal of PRN16 has the best performance in this observation, we select PRN16 as an example for detailed analysis. 
 
-<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking.png" alt="tracking" /> </center>
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/.png" alt="" /> </center>
 
-The tracking performance in open-sky conditions demonstrates:
+The  performance in open-sky conditions demonstrates:
 
 1. Q-channel oscillating around zero, confirming proper carrier alignment
-2. DLL discriminator output remaining near zero, indicating stable code tracking
-3. PLL discriminator output maintaining minimal error, showing stable carrier phase tracking
+2. DLL discriminator output remaining near zero, indicating stable code 
+3. PLL discriminator output maintaining minimal error, showing stable carrier phase 
 4. Prompt correlation power significantly exceeding Early/Late powers, confirming optimal code alignment
 
 #### Scenario 2: Urban (Take PRN11 as an example)
@@ -176,7 +176,7 @@ The urban ACF exhibits asymmetric correlation peaks with notable distortions. Th
 
 <center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_urban.png" alt="ACF_urban" /> </center>
 
-<center> ![tracking_urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking_urban.png) </center>
+ ![tracking_urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking_urban.png) 
 
 #### 3.3 The impact of urban interference on the correlation peaks:
 
