@@ -105,9 +105,9 @@ The acquisition results demonstrate successful satellite signal detection in an 
 
 The acquisition metric results are visualized in the figure below:
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_o.png" alt="Acquisition_metric_o"  />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_o.png" alt="Acquisition_metric_o"  /> </center>
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_sky.png" alt="skyplot_sky" style="zoom:50%;" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_sky.png" alt="skyplot_sky" width="300" /> </center>
 
 The acquisition results demonstrate successful satellite signal detection in an open-sky environment. The bar chart clearly identifies five satellites (PRNs 16, 22, 26, 27, and 31) with acquisition metrics significantly exceeding the detection threshold, indicating strong signal presence. 
 
@@ -122,9 +122,9 @@ Four satellites signal are acquired. Compared to the Opensky scenario, the acqui
 |       3 |  11 |  4.09126e+02 |     409   |      1155   |     T  |
 |       4 |  18 |  -3.22342e+02 |    -322   |     10581   |     T  |
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_u.png" alt="Acquisition_metric_u"/>
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/Acquisition_metric_u.png" alt="Acquisition_metric_u"/> </center>
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_urban.png" alt="skyplot_urban" style="zoom:67%;" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/skyplot_urban.png" alt="skyplot_urban" width="300" /> </center>
 
 
 ## Task 2: Tracking
@@ -137,7 +137,7 @@ The tracking process refines the coarse estimates obtained from the acquisition 
 
 Our approach implements a multi-correlator tracking architecture to analyze GNSS signal characteristics in varying environments. The tracking system incorporates a Phase Lock Loop with Costas discriminator for carrier tracking and a non-coherent Delay Lock Loop for code tracking. We extended the standard Early-Prompt-Late correlator configuration to include nine correlators with 0.1-chip spacing covering ±0.4 chips around the prompt position. This enhanced setup enables detailed visualization of the correlation function shape, facilitating detection of multipath-induced distortions. A Delay Lock Loop (DLL) with non-coherent early-minus-late power discriminator was implemented to track the code phase. The discriminator, as described in slide 67, computes: 
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula1.png" alt="image-20250312162043019" style="zoom:20%;" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula1.png" alt="image-20250312162043019" width="160" /> </center>
 
 The DLL discriminator implements a normalized early-minus-late power formula:
 
@@ -157,11 +157,11 @@ These multiple correlation points enable detailed visualization of the auto-corr
 
 The figures below show the ACF analysis of each visible PRN. The ACF exhibits symmetric, well-defined correlation peaks across all measurement epochs, characteristic of clean line-of-sight signal reception with minimal distortion. This symmetry confirms the absence of significant multipath effects in the open-sky environment. 
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_sky.png" alt="ACF_sky" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_sky.png" alt="ACF_sky" /> </center>
 
 Since the signal of PRN16 has the best performance in this observation, we select PRN16 as an example for detailed analysis. 
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking.png" alt="tracking" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking.png" alt="tracking" /> </center>
 
 The tracking performance in open-sky conditions demonstrates:
 
@@ -174,9 +174,9 @@ The tracking performance in open-sky conditions demonstrates:
 
 The urban ACF exhibits asymmetric correlation peaks with notable distortions. This asymmetry is a telltale signature of multipath effects, where reflected signals combine with the direct path signal to create correlation function deformations. These distortions lead to biased pseudorange measurements and degraded positioning accuracy.
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_urban.png" alt="ACF_urban" />
+<center> <img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/ACF_urban.png" alt="ACF_urban" /> </center>
 
-![tracking_urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking_urban.png)
+<center> ![tracking_urban](https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/tracking_urban.png) </center>
 
 #### 3.3 The impact of urban interference on the correlation peaks:
 
@@ -294,7 +294,7 @@ The weighted solution is given by:
 For velocity estimation, we leverage Doppler measurements:
 $\dot{\rho}_i=-\lambda \cdot f_{\text {doppler }, i}$
 
-The velocity solution follows a similar WLS structure:<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula2.png" alt="image-20250312162341113" style="zoom:20%;" />
+The velocity solution follows a similar WLS structure:<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula2.png" alt="image-20250312162341113" width="180" />
 
 
 Where $b_i$ =$\dot{\rho}*i$ - $\vec{v}*{sat,i}$ $\cdot \vec{u}_i$ and $\vec{u}_i$ is the unit line-of-sight vector.
@@ -309,7 +309,7 @@ Figure below shows the WLS **positioning result** of the opensky scenario, where
 
 This figure below shows **velocity estimation** result of the opensky scenario.
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky.pngg" alt="v_Opensky" style="zoom:80%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky.png" alt="v_Opensky" style="zoom:80%;" />
 
 #### Scenario 2: Urban
 
@@ -334,11 +334,11 @@ The EKF consists of prediction and update stages:
 
 **Prediction:**
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula3.png" alt="image-20250312201007938" style="zoom:20%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula3.png" alt="image-20250312201007938" width="300" />
 
 **Update:**
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula4.png" alt="image-20250312201100890" style="zoom:20%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/formula4.png" alt="image-20250312201100890" width="360" />
 
 ### 2 Experiment Results and Discussions
 
@@ -350,7 +350,7 @@ The EKF solution demonstrates superior stability compared to WLS, effectively su
 
 This figure below shows **velocity estimation** result of the opensky scenario. Velocity estimates exhibit significantly improved consistency, leveraging the temporal correlation inherent in Kalman filtering to reduce epoch-to-epoch variations.
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky_kf.png" alt="v_Opensky_kf" style="zoom:80%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Opensky_kf.png" alt="v_Opensky_kf"  />
 
 #### Scenario 2: Urban
 
@@ -364,7 +364,7 @@ While the urban EKF solution still experiences accuracy limitations due to the c
 
 Urban velocity estimates benefit substantially from Kalman filtering, though they remain less accurate than open-sky results due to the fundamental measurement challenges in urban environments.
 
-<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Urban_kf.png" alt="v_Urban_kf" style="zoom:67%;" />
+<img src="https://github.com/RuijieXu0408/AAE6102_Assignment1/blob/main/img/v_Urban_kf.png" alt="v_Urban_kf"  />
 
 The EKF demonstrates clear advantages over WLS by incorporating a dynamic model that:
 
